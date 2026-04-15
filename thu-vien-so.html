@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Thư viện số - HUIT</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background: #f8fafc; font-family: 'Inter', sans-serif; }
+        .lib-banner {
+            margin-top: 130px;
+            background: linear-gradient(135deg, #004080, #0054a5);
+            padding: 80px 0;
+            color: white;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .search-container {
+            margin: -30px auto 40px;
+            max-width: 600px;
+            position: relative;
+            z-index: 10;
+        }
+        .search-container input {
+            width: 100%;
+            padding: 18px 30px 18px 60px;
+            border-radius: 35px;
+            border: none;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            font-size: 1rem;
+            outline: none;
+        }
+        .search-container i { position: absolute; left: 25px; top: 20px; color: #0054a5; font-size: 1.2rem; }
+
+        #lib-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; }
+        .doc-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: 0.4s;
+            border-bottom: 4px solid #ddd;
+        }
+        .doc-card:hover {
+            transform: translateY(-8px);
+            border-bottom-color: #ed1c24;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+        .icon-box {
+            width: 70px;
+            height: 70px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #e74c3c;
+        }
+        .btn-open {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 8px 20px;
+            background: #0054a5;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            #lib-list { grid-template-columns: 1fr; }
+            .lib-banner { margin-top: 100px; padding: 40px 10px; }
+            .lib-banner h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div id="header"></div>
+    <main class="container">
+        <section class="lib-banner">
+            <h1 style="font-size: 2.5rem; margin-bottom: 10px;">THƯ VIỆN TÀI LIỆU SỐ</h1>
+            <p style="opacity: 0.8;">Hệ thống lưu trữ Giáo trình & Đồ án chuyên ngành Công nghệ thông tin</p>
+        </section>
+
+        <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input type="text" id="libSearch" placeholder="Tìm kiếm giáo trình, mã môn học..." onkeyup="searchLib()">
+        </div>
+
+        <div id="lib-list"></div>
+    </main>
+    <script src="js/component.js"></script>
+    <script>
+        let allDocs = [];
+        async function load() {
+            try {
+                const res = await fetch('data/library.json');
+                allDocs = await res.json();
+                display(allDocs);
+            } catch(e) { console.log("Lỗi tải dữ liệu thư viện"); }
+        }
+        function display(data) {
+            document.getElementById('lib-list').innerHTML = data.map(d => `
+                <div class="doc-card">
+                    <div class="icon-box"><i class="fas fa-file-pdf fa-3x"></i></div>
+                    <div style="flex:1;">
+                        <span style="font-size:0.7rem; color:#f39c12; font-weight:bold;">${d.category}</span>
+                        <h4 style="margin:5px 0; color:#333; line-height:1.4;">${d.title}</h4>
+                        <p style="margin:0; font-size:0.8rem; color:#888;">Tác giả: ${d.author}</p>
+                        <a href="chitiet.html?type=library&id=${d.id}" class="btn-open">XEM CHI TIẾT</a>
+                    </div>
+                </div>
+            `).join('');
+        }
+        function searchLib() {
+            const q = document.getElementById('libSearch').value.toLowerCase();
+            display(allDocs.filter(d => d.title.toLowerCase().includes(q) || d.category.toLowerCase().includes(q)));
+        }
+        load();
+    </script>
+</body>
+</html>

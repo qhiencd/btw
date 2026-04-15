@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tin tức & Sự kiện - Khoa CNTT HUIT</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f8fafc; font-family: 'Inter', sans-serif; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 15px; }
+
+        .featured-news {
+            margin-top: 130px;
+            background: linear-gradient(rgba(0,84,165,0.8), rgba(0,84,165,0.8)), url('https://huit.edu.vn/menu-logo/huit-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            padding: 60px 0;
+            color: white;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .filter-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .search-box {
+            position: relative;
+            flex: 1;
+            max-width: 400px;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 12px 40px;
+            border-radius: 25px;
+            border: 1px solid #ddd;
+            outline: none;
+        }
+        .search-box i { position: absolute; left: 15px; top: 15px; color: #999; }
+
+        .filter-tabs { display: flex; gap: 10px; }
+        .tab-btn {
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 1px solid #0054a5;
+            background: white;
+            color: #0054a5;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .tab-btn.active, .tab-btn:hover {
+            background: #0054a5;
+            color: white;
+        }
+
+        #news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+        .news-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: 0.4s;
+        }
+        .news-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+        
+        .card-thumb {
+            height: 200px;
+            background: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ccc;
+            position: relative;
+        }
+        .type-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: #f39c12;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            #news-grid { grid-template-columns: 1fr; }
+            .featured-news { margin-top: 100px; padding: 40px 10px; }
+            .featured-news h1 { font-size: 1.8rem; }
+            .filter-section { flex-direction: column; align-items: stretch; }
+            .search-box { max-width: none; }
+        }
+    </style>
+</head>
+<body>
+    <div id="header"></div>
+
+    <main class="container">
+        <section class="featured-news">
+            <h1>TIN TỨC & SỰ KIỆN MỚI NHẤT</h1>
+            <p>Cập nhật những hoạt động, thông báo nhanh nhất từ Khoa Công nghệ thông tin HUIT</p>
+        </section>
+
+        <section class="filter-section">
+            <div class="filter-tabs" id="filter-btns">
+                <button class="tab-btn active" onclick="filterNews('Tất cả', this)">Tất cả</button>
+                <button class="tab-btn" onclick="filterNews('Học vụ', this)">Học vụ</button>
+                <button class="tab-btn" onclick="filterNews('Sự kiện', this)">Sự kiện</button>
+                <button class="tab-btn" onclick="filterNews('Tuyển dụng', this)">Tuyển dụng</button>
+            </div>
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="newsSearch" placeholder="Tìm kiếm tin tức..." onkeyup="searchNews()">
+            </div>
+        </section>
+
+        <div id="news-grid"></div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="js/component.js"></script>
+    <script>
+        let allNews = [];
+
+        async function init() {
+            try {
+                const res = await fetch('data/news.json');
+                allNews = await res.json();
+                displayNews(allNews);
+            } catch (e) { console.log("Lỗi nạp dữ liệu tin tức"); }
+        }
+
+        function displayNews(data) {
+            const grid = document.getElementById('news-grid');
+            grid.innerHTML = data.map((n) => `
+                <div class="news-card">
+                    <div class="card-thumb">
+                        <span class="type-badge">${n.type.toUpperCase()}</span>
+                        <i class="fas fa-newspaper fa-4x"></i>
+                    </div>
+                    <div style="padding: 25px;">
+                        <small style="color: #999;"><i class="far fa-calendar-alt"></i> ${n.date}</small>
+                        <h3 style="margin: 15px 0; color: #0054a5; line-height: 1.4; min-height: 50px;">${n.title}</h3>
+                        <p style="font-size: 0.9rem; color: #666; height: 60px; overflow: hidden; line-height: 1.6;">${n.desc}</p>
+                        <hr style="margin: 20px 0; opacity: 0.1;">
+                        <a href="chitiet.html?type=news&id=${n.id}" style="color: #ed1c24; font-weight: bold; text-decoration: none;">ĐỌC TIẾP →</a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterNews(type, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const filtered = type === 'Tất cả' ? allNews : allNews.filter(n => n.type === type);
+            displayNews(filtered);
+        }
+
+        function searchNews() {
+            const query = document.getElementById('newsSearch').value.toLowerCase();
+            const filtered = allNews.filter(n => n.title.toLowerCase().includes(query) || n.desc.toLowerCase().includes(query));
+            displayNews(filtered);
+        }
+
+        init();
+    </script>
+</body>
+</html>
